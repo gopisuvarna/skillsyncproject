@@ -33,6 +33,7 @@ class FAISSRoleIndex:
             f.write('\n'.join(self.id_list))
 
     def load(self) -> bool:
+        import faiss
         if not INDEX_PATH.exists():
             return False
         try:
