@@ -13,9 +13,15 @@ PyJWT==2.8.0
 # Database
 psycopg[binary]==3.1.19
 
-# Supabase
-supabase==2.4.5
+
 httpx==0.27.0
+# Supabase
+supabase>=2.8.0
+
+
+
+# Websocket compatibility
+websockets>=13,<15
 
 # PDF Processing
 PyMuPDF==1.24.5
