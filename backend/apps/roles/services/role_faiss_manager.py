@@ -3,7 +3,7 @@ FAISS manager for CSV-based role index (resume upload flow).
 Create index, save/load, similarity search returning (score, metadata).
 """
 from __future__ import annotations
-
+import numpy as np
 import logging
 #Used to save Python objects to disk.
 import pickle
@@ -30,6 +30,7 @@ class RoleFAISSManager:
     """FAISS index for CSV-based roles. Used by resume upload and offline build pipeline."""
 
     def __init__(self) -> None:
+        import faiss
         self.index_path = Path(FAISS_DIR) / FAISS_INDEX_FILE
         self.metadata_path = Path(FAISS_DIR) / FAISS_METADATA_FILE
         self.index: faiss.Index | None = None
@@ -41,7 +42,7 @@ class RoleFAISSManager:
         metadata: List[Dict[str, Any]],
     ) -> None:
         import faiss
-        import numpy as np
+        
         #Every vector must have metadata.
         if len(vectors) != len(metadata):
             raise VectorDBError("Vectors and metadata size mismatch.")
@@ -61,7 +62,6 @@ class RoleFAISSManager:
 
     def _save(self) -> None:
         import faiss
-        import numpy as np
         if self.index is None or self.metadata is None:
             raise VectorDBError("Nothing to save.")
         #Ensures folder exists.
@@ -74,7 +74,6 @@ class RoleFAISSManager:
 
     def load(self) -> None:
         import faiss
-        import numpy as np
         if not self.index_path.exists():
             raise VectorDBError("FAISS index not found. Run roles build pipeline first.")
         try:
