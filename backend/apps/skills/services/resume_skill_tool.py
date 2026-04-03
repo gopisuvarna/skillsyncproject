@@ -479,32 +479,72 @@ class SkillExtractor:
     _nlp = None
     _matcher = None
 
+    # @classmethod
+    # def _initialize(cls) -> None:
+    #     import spacy
+    #     from spacy.matcher import PhraseMatcher
+    #     if cls._nlp is not None:
+    #         return 
+    #     try:
+    #         # Use plain ASCII to avoid Windows console encoding crashes.
+    #         print("[SkillExtractor] Loading spaCy model...")
+    #         cls._nlp = spacy.load("en_core_web_sm")
+    #         matcher = PhraseMatcher(cls._nlp.vocab, attr="LOWER")
+    #         # Skills list lives in skills app data
+    #         skills_path = Path(__file__).resolve().parent.parent / "data" / "skill.txt"
+    #         if not skills_path.exists():
+    #             raise Exception("skill.txt not found in apps/skills/data/")
+    #         skills = [
+    #             line.strip().lower()
+    #             for line in skills_path.read_text(encoding="utf-8").splitlines()
+    #             if line.strip()
+    #         ]
+    #         patterns = [cls._nlp.make_doc(skill) for skill in skills]
+    #         matcher.add("SKILLS", patterns)
+    #         cls._matcher = matcher
+    #         print(f"[SkillExtractor] Skill matcher initialized with {len(skills)} skills.")
+    #     except Exception as e:
+    #         raise Exception(f"Failed to initialize SkillExtractor: {e}") from e
     @classmethod
     def _initialize(cls) -> None:
         import spacy
         from spacy.matcher import PhraseMatcher
+
         if cls._nlp is not None:
-            return 
+            return
+
         try:
-            # Use plain ASCII to avoid Windows console encoding crashes.
             print("[SkillExtractor] Loading spaCy model...")
-            cls._nlp = spacy.load("en_core_web_sm")
+
+            # optimized spaCy load (reduced memory)
+            cls._nlp = spacy.load(
+                "en_core_web_sm",
+                disable=["parser", "ner", "tagger"]
+            )
+
             matcher = PhraseMatcher(cls._nlp.vocab, attr="LOWER")
-            # Skills list lives in skills app data
+
             skills_path = Path(__file__).resolve().parent.parent / "data" / "skill.txt"
+
             if not skills_path.exists():
                 raise Exception("skill.txt not found in apps/skills/data/")
+
             skills = [
                 line.strip().lower()
                 for line in skills_path.read_text(encoding="utf-8").splitlines()
                 if line.strip()
             ]
+
             patterns = [cls._nlp.make_doc(skill) for skill in skills]
             matcher.add("SKILLS", patterns)
+
             cls._matcher = matcher
+
             print(f"[SkillExtractor] Skill matcher initialized with {len(skills)} skills.")
+
         except Exception as e:
             raise Exception(f"Failed to initialize SkillExtractor: {e}") from e
+        
 
     @classmethod
     def extract(cls, text: str) -> List[str]:
