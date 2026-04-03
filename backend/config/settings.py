@@ -158,9 +158,14 @@ COOKIE_CONFIG = {
 SUPABASE_URL = env("SUPABASE_URL")
 SUPABASE_KEY = env("SUPABASE_KEY")
 
+# EMBEDDING_CONFIG = {
+#     'MODEL_NAME': 'all-MiniLM-L6-v2',
+#     'DIMENSION': 384,
+# }
+
 EMBEDDING_CONFIG = {
-    'MODEL_NAME': 'all-MiniLM-L6-v2',
-    'DIMENSION': 384,
+    'MODEL_NAME': 'gemini-embedding-001',  
+    'DIMENSION': 3072,
 }
 
 ADZUNA_CONFIG = {
@@ -168,12 +173,11 @@ ADZUNA_CONFIG = {
     'API_KEY': env('ADZUNA_API_KEY'),
     'BASE_URL': 'https://api.adzuna.com/v1/api/jobs',
 }
-
-# GOOGLE_API_KEY = env("GOOGLE_API_KEY")
+GOOGLE_AI_API_KEY = env("GOOGLE_AI_API_KEY")
+# GOOGLE_AI_API_KEY = env("GOOGLE_AI_API_KEY")
 # GOOGLE_AI_CONFIG = {
-#     'API_KEY': env('GOOGLE_API_KEY'),
+#     'API_KEY': env('GOOGLE_AI_API_KEY'),
 # }
-#GOOGLE_API_KEY='AIzaSyByVYe0l3eM_W_Km_2mFpXOrUgyLFnJ69U'
 GROQ_API_KEY = env("GROQ_API_KEY")
 
 GROQ_CONFIG = {

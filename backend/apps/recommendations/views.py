@@ -1,3 +1,100 @@
+# """Recommendations: role matching, skill gap, learning plan."""
+# from rest_framework import status
+# from rest_framework.decorators import api_view, permission_classes
+# from rest_framework.permissions import IsAuthenticated
+# from rest_framework.response import Response
+# from django.db.models import Prefetch
+
+# from apps.skills.models import  UserSkill
+# from apps.roles.models import Role, RoleSkill
+# #from apps.embeddings.models import RoleEmbedding, SkillEmbedding
+# from core.services.embedding_service import encode_single
+# from core.services.learning_recommendation_service import get_courses_for_skills
+# from apps.roles.services import get_faiss_index, re_rank, compute_skill_gap
+
+
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def top_roles(request):
+#     """User Vector → FAISS Top 30 → Re-rank → Top 5 Roles."""
+#     user_skills = list(UserSkill.objects.filter(user=request.user).select_related('skill').values('skill_id', 'skill__name'))
+#     if not user_skills:
+#         return Response({'roles': [], 'message': 'Add skills first'})
+
+#     user_skill_ids = {str(s['skill_id']) for s in user_skills}
+#     user_skill_names = [s['skill__name'] for s in user_skills]
+#     user_text = ' '.join(user_skill_names)
+#     user_vec = encode_single(user_text)
+
+#     faiss_index = get_faiss_index()
+#     candidates = faiss_index.search(user_vec, k=30)
+#     if not candidates:
+#         roles = Role.objects.prefetch_related(
+#             Prefetch('skills', queryset=RoleSkill.objects.select_related('skill'))
+#         )[:5]
+#         role_list = [{'id': str(r.id), 'title': r.title, 'description': r.description} for r in roles]
+#     else:
+#         role_ids = [rid for rid, _ in candidates]
+#         roles = Role.objects.filter(id__in=role_ids).prefetch_related(
+#             Prefetch('skills', queryset=RoleSkill.objects.select_related('skill'))
+#         )
+#         role_map = {str(r.id): r for r in roles}
+#         role_list = [{'id': str(rid), 'title': role_map[rid].title, 'description': role_map[rid].description} for rid in role_ids if rid in role_map]
+
+#     role_skills_map = {}
+#     for r in roles:
+#         rs_list = [
+#             {'skill_id': str(rs.skill_id), 'skill_name': rs.skill.name, 'importance_weight': rs.importance_weight}
+#             for rs in r.skills.all()
+#         ]
+#         role_skills_map[str(r.id)] = rs_list
+
+#     ranked = re_rank(role_list, user_skill_ids, user_skill_names, role_skills_map, top_k=5)
+#     return Response({'roles': ranked})
+
+
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def skill_gap(request, role_id):
+#     """Skill Gap = Role Skills - User Skills."""
+#     user_skill_ids = set(UserSkill.objects.filter(user=request.user).values_list('skill_id', flat=True))
+#     user_skill_ids = {str(sid) for sid in user_skill_ids}
+
+#     role = Role.objects.prefetch_related(
+#         Prefetch('skills', queryset=RoleSkill.objects.select_related('skill'))
+#     ).filter(id=role_id).first()
+#     if not role:
+#         return Response({'detail': 'Role not found'}, status=status.HTTP_404_NOT_FOUND)
+
+#     rs_list = [
+#         {'skill_id': str(rs.skill_id), 'skill_name': rs.skill.name, 'importance_weight': rs.importance_weight}
+#         for rs in role.skills.all()
+#     ]
+#     gap = compute_skill_gap(user_skill_ids, rs_list)
+#     return Response(gap)
+
+
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def learning_plan(request, role_id):
+#     """Missing skills → courses. Top recommendations per missing skill."""
+#     user_skill_ids = set(UserSkill.objects.filter(user=request.user).values_list('skill_id', flat=True))
+#     user_skill_ids = {str(sid) for sid in user_skill_ids}
+
+#     role = Role.objects.prefetch_related(
+#         Prefetch('skills', queryset=RoleSkill.objects.select_related('skill'))
+#     ).filter(id=role_id).first()
+#     if not role:
+#         return Response({'detail': 'Role not found'}, status=status.HTTP_404_NOT_FOUND)
+
+#     missing = [
+#         rs.skill.name for rs in role.skills.all()
+#         if str(rs.skill_id) not in user_skill_ids
+#     ]
+#     courses = get_courses_for_skills(missing, limit_per_skill=3)
+#     return Response({'missing_skills': missing, 'courses': courses})
+
+
 """Recommendations: role matching, skill gap, learning plan."""
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -16,18 +113,34 @@ from apps.roles.services import get_faiss_index, re_rank, compute_skill_gap
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def top_roles(request):
-    """User Vector → FAISS Top 30 → Re-rank → Top 5 Roles."""
+    """
+    Returns skill-to-role matches.
+    Reads from UserRoleCache (populated on login) for instant response.
+    Falls back to live FAISS computation if cache is empty.
+    """
+    # ── Try cache first ───────────────────────────────────────────
+    try:
+        from apps.jobs.models import UserRoleCache
+        cache = UserRoleCache.objects.filter(user=request.user).first()
+        if cache:
+            cached_roles = cache.get_roles()
+            if cached_roles:
+                return Response({'roles': cached_roles, 'from_cache': True})
+    except Exception:
+        pass  # cache table may not exist yet — fall through to live
+
+    # ── Cache miss: compute live ──────────────────────────────────
     user_skills = list(UserSkill.objects.filter(user=request.user).select_related('skill').values('skill_id', 'skill__name'))
     if not user_skills:
         return Response({'roles': [], 'message': 'Add skills first'})
 
-    user_skill_ids = {str(s['skill_id']) for s in user_skills}
+    user_skill_ids   = {str(s['skill_id']) for s in user_skills}
     user_skill_names = [s['skill__name'] for s in user_skills]
-    user_text = ' '.join(user_skill_names)
-    user_vec = encode_single(user_text)
+    user_text        = ' '.join(user_skill_names)
+    user_vec         = encode_single(user_text)
 
     faiss_index = get_faiss_index()
-    candidates = faiss_index.search(user_vec, k=30)
+    candidates  = faiss_index.search(user_vec, k=30)
     if not candidates:
         roles = Role.objects.prefetch_related(
             Prefetch('skills', queryset=RoleSkill.objects.select_related('skill'))
@@ -38,7 +151,7 @@ def top_roles(request):
         roles = Role.objects.filter(id__in=role_ids).prefetch_related(
             Prefetch('skills', queryset=RoleSkill.objects.select_related('skill'))
         )
-        role_map = {str(r.id): r for r in roles}
+        role_map  = {str(r.id): r for r in roles}
         role_list = [{'id': str(rid), 'title': role_map[rid].title, 'description': role_map[rid].description} for rid in role_ids if rid in role_map]
 
     role_skills_map = {}
@@ -50,7 +163,7 @@ def top_roles(request):
         role_skills_map[str(r.id)] = rs_list
 
     ranked = re_rank(role_list, user_skill_ids, user_skill_names, role_skills_map, top_k=5)
-    return Response({'roles': ranked})
+    return Response({'roles': ranked, 'from_cache': False})
 
 
 @api_view(['GET'])

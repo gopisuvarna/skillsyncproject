@@ -12,7 +12,7 @@ cryptography>=42.0,<44.0
 psycopg[binary]>=3.1,<4.0
 
 # Supabase
-supabase>=2.4,<3.0
+supabase-py>=2.4,<3.0
 
 # PDF Processing
 PyMuPDF>=1.24,<2.0
@@ -33,10 +33,52 @@ groq>=0.9,<1.0
 # Background Jobs
 APScheduler>=3.10,<4.0
 
-# HTTP & Utilities
+# HTTP & Utils
 requests>=2.31,<3.0
 httpx>=0.26,<0.28
 python-dotenv>=1.0,<2.0
 
-# Production Server (Required for Render)
-gunicorn>=21.2,<22.0
+
+
+
+
+
+
+# # Django & DRF
+# Django>=5.0,<5.1
+# djangorestframework>=3.14,<4.0
+# django-cors-headers>=4.3,<5.0
+# django-environ>=0.11,<1.0
+
+# # Auth & Security
+# PyJWT>=2.8,<3.0
+# cryptography>=42.0,<44.0
+
+# # Database
+# psycopg[binary]>=3.1,<4.0
+
+# # Supabase
+# supabase-py>=2.4,<3.0
+
+# # PDF Processing
+# PyMuPDF>=1.24,<2.0
+
+# # NLP & ML
+# spacy>=3.7,<4.0
+# # Run: python -m spacy download en_core_web_sm
+# flashtext>=2.7,<3.0
+# sentence-transformers>=2.2,<3.0
+# faiss-cpu>=1.7,<2.0
+# scikit-learn>=1.4,<2.0
+# numpy>=1.26,<2.0
+
+# # Background Jobs
+# APScheduler>=3.10,<4.0
+
+# # HTTP & Utils
+# requests>=2.31,<3.0
+# httpx>=0.26,<0.28
+# python-dotenv>=1.0,<2.0
+
+# # Google AI
+# google-generativeai>=0.3,<0.5
