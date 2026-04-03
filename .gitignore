@@ -1,0 +1,54 @@
+# Python cache
+
+**pycache**/
+*.py[cod]
+
+# Django collected static files
+
+backend/staticfiles/
+
+# Environment variables
+.env
+frontend/.env
+# Virtual environments
+
+venv/
+env/
+.venv/
+
+# Logs
+
+*.log
+
+
+
+
+# Frontend dependencies
+
+frontend/node_modules/
+
+# Next.js build files
+
+frontend/.next/
+frontend/out/
+
+# Environment variables
+
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# Logs
+
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# TypeScript build info
+
+frontend/*.tsbuildinfo
+
+# Editor files
+
+frontend/.vscode/
+frontend/.idea/
