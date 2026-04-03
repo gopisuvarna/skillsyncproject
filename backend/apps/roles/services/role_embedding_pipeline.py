@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import List, Dict
 
 #Used for data manipulation and analysis, especially for handling CSV files.
-import pandas as pd
+
 #Used to access Django settings, such as file paths and embedding dimensions.
 from django.conf import settings
 
@@ -49,6 +49,7 @@ class RoleEmbeddingPipeline:
 
     #Run the pipeline: load the dataset, generate embeddings, and build the FAISS index. Logs progress and raises exceptions for any issues encountered.
     def run(self) -> None:
+        import pandas as pd
         logger.info("Loading roles dataset...")
         df = pd.read_csv(self.dataset_path, encoding="latin1")
         required_cols = {"Job Title", "Job Description", "Skills"}

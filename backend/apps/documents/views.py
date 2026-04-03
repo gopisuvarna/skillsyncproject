@@ -4,10 +4,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 
-import fitz  # PyMuPDF
+
 import uuid
 import threading
-import numpy as np
+
 
 from django.db import transaction
 
@@ -49,6 +49,8 @@ class ResumeUploadView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        import fitz  # PyMuPDF
+        import numpy as np
         try:
             file = request.FILES.get("file")
 

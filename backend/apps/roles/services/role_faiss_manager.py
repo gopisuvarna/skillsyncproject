@@ -11,8 +11,7 @@ from pathlib import Path
 from typing import List, Dict, Any, Tuple
 
 #Used to handle FAISS index creation, saving, loading, and searching for role embeddings.
-import faiss
-import numpy as np
+
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +40,8 @@ class RoleFAISSManager:
         vectors: np.ndarray,
         metadata: List[Dict[str, Any]],
     ) -> None:
+        import faiss
+        import numpy as np
         #Every vector must have metadata.
         if len(vectors) != len(metadata):
             raise VectorDBError("Vectors and metadata size mismatch.")
@@ -59,6 +60,8 @@ class RoleFAISSManager:
             raise VectorDBError(f"Index creation failed: {e}") from e
 
     def _save(self) -> None:
+        import faiss
+        import numpy as np
         if self.index is None or self.metadata is None:
             raise VectorDBError("Nothing to save.")
         #Ensures folder exists.
@@ -70,6 +73,8 @@ class RoleFAISSManager:
             pickle.dump(self.metadata, f)
 
     def load(self) -> None:
+        import faiss
+        import numpy as np
         if not self.index_path.exists():
             raise VectorDBError("FAISS index not found. Run roles build pipeline first.")
         try:

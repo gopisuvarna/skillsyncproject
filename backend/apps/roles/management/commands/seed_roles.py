@@ -43,7 +43,7 @@ Then rebuild the DB-based FAISS index so recommendations and analytics work:
 """
 from pathlib import Path
 
-import pandas as pd
+
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
@@ -95,6 +95,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        import pandas as pd
         if not CSV_PATH.exists():
             self.stdout.write(self.style.ERROR(f"CSV not found: {CSV_PATH}"))
             return

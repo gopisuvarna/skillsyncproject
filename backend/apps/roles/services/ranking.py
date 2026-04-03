@@ -24,8 +24,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Set
 
 #Used to build a skill relationship graph.
-import networkx as nx
-import pandas as pd
+
 
 logger = logging.getLogger(__name__)
 
@@ -147,6 +146,7 @@ Meaning:
 python is most important because it connects to many other skills frequently.'''
 
 def _graph_importance(docs: List[Set[str]]) -> Dict[str, float]:
+    import networkx as nx
     g = nx.Graph()
     for d in docs:
         for a, b in combinations(d, 2):
@@ -223,6 +223,8 @@ def _tfidf_distinctiveness(docs: List[Set[str]]) -> Dict[str, float]:
 
 
 def _compute_skill_scores() -> Dict[str, float]:
+    import pandas as pd
+
     """Build global skill importance scores from CSV."""
     df = pd.read_csv(_CSV_PATH, encoding="latin1").dropna(subset=["Skills"])
     docs = [_normalize_skills(r) for r in df["Skills"]]

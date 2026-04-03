@@ -3,8 +3,6 @@ import logging
 from pathlib import Path
 from typing import List, Tuple
 
-import faiss
-import numpy as np
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
@@ -20,6 +18,8 @@ class FAISSRoleIndex:
         self.dimension = settings.EMBEDDING_CONFIG.get('DIMENSION', 384)
 
     def build(self, vectors: List[List[float]], role_ids: List[str]):
+        import faiss
+        import numpy as np
         if not vectors or not role_ids:
             return
         X = np.array(vectors, dtype=np.float32)
@@ -46,6 +46,8 @@ class FAISSRoleIndex:
         return False
 
     def search(self, query_vector: List[float], k: int = 30) -> List[Tuple[str, float]]:
+        import faiss
+        import numpy as np
         """Return top k (role_id, score) by cosine similarity (IP on L2-normalized vectors)."""
         if self.index is None and not self.load():
             return []
