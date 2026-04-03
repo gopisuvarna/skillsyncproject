@@ -93,3 +93,5 @@ requests>=2.31,<3.0
 
 # Environment
 python-dotenv>=1.0,<2.0
+
+https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1.tar.gz
