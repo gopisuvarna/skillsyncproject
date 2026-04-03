@@ -1,52 +1,3 @@
-# # Django & DRF
-# Django>=5.0,<5.1
-# djangorestframework>=3.14,<4.0
-# django-cors-headers>=4.3,<5.0
-# django-environ>=0.11,<1.0
-
-# # Production Server
-# gunicorn>=21.2,<22.0
-
-# # Authentication & Security
-# PyJWT>=2.8,<3.0
-# cryptography>=42.0,<44.0
-
-# # Database
-# psycopg[binary]>=3.1,<4.0
-
-# # Supabase
-# supabase>=2.4,<3.0
-
-# # PDF Processing
-# PyMuPDF>=1.24,<2.0
-
-# # NLP
-# spacy>=3.7,<4.0
-# flashtext>=2.7,<3.0
-
-# # Vector Search
-# faiss-cpu>=1.7,<2.0
-# numpy>=1.26,<2.0
-
-# # Data Processing
-# pandas>=2.1,<3.0
-# networkx>=3.2,<4.0
-# scikit-learn>=1.4,<2.0
-
-# # LLM APIs
-# groq>=0.9,<1.0
-# google-genai>=1.0,<2.0
-
-# # Background Jobs
-# APScheduler>=3.10,<4.0
-
-# # HTTP Clients
-# requests>=2.31,<3.0
-# httpx>=0.26,<0.28
-
-# # Environment
-# python-dotenv>=1.0,<2.0
-
 # Django & DRF
 Django>=5.0,<5.1
 djangorestframework>=3.14,<4.0
@@ -62,7 +13,7 @@ PyJWT>=2.8,<3.0
 # Database
 psycopg[binary]>=3.1,<4.0
 
-# Supabase (file storage)
+# Supabase
 supabase>=2.4,<3.0
 httpx>=0.26,<0.28
 
@@ -70,13 +21,15 @@ httpx>=0.26,<0.28
 PyMuPDF>=1.24,<2.0
 
 # NLP
-spacy>=3.7,<4.0
+spacy==3.7.2
+thinc==8.2.2
+blis==0.7.11
 
 # Vector Search
 faiss-cpu>=1.7,<2.0
 numpy>=1.26,<2.0
 
-# Data Processing (used in ranking.py — BM25 + PageRank)
+# Data Processing
 pandas>=2.1,<3.0
 networkx>=3.2,<4.0
 scikit-learn>=1.4,<2.0
@@ -88,10 +41,11 @@ google-genai>=1.0,<2.0
 # Background Jobs
 APScheduler>=3.10,<4.0
 
-# HTTP Client (Adzuna API)
+# HTTP Client
 requests>=2.31,<3.0
 
 # Environment
 python-dotenv>=1.0,<2.0
 
+# spaCy English model
 https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1.tar.gz
