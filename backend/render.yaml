@@ -1,0 +1,86 @@
+version: "1"
+
+services:
+  - type: web
+    name: skillsync-backend
+    runtime: python
+    region: singapore
+    plan: starter                        # $7/mo — stays alive, needed for background threads
+
+    rootDir: backend                     # your manage.py lives here
+
+    buildCommand: |
+      pip install --upgrade pip &&
+      pip install -r requirements.txt &&
+      python -m spacy download en_core_web_sm &&
+      python manage.py collectstatic --noinput
+
+    startCommand: >
+      python manage.py migrate --noinput &&
+      python manage.py seed_roles &&
+      python manage.py seed_courses &&
+      gunicorn config.wsgi:application
+      --bind 0.0.0.0:$PORT
+      --workers 2
+      --timeout 120
+      --log-level info
+
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.0"
+
+      - key: DEBUG
+        value: "False"
+
+      - key: SECRET_KEY
+        generateValue: true
+
+      - key: DATABASE_URL
+        fromDatabase:
+          name: skillsync-db
+          property: connectionString
+
+      - key: ALLOWED_HOSTS
+        value: "skillsync-backend.onrender.com"
+
+      - key: CORS_ALLOWED_ORIGINS
+        value: "https://your-frontend.vercel.app"    # ← update after Vercel deploy
+
+      - key: CSRF_TRUSTED_ORIGINS
+        value: "https://skillsync-backend.onrender.com"
+
+      - key: JWT_ACCESS_EXPIRY
+        value: "900"
+
+      - key: JWT_REFRESH_EXPIRY
+        value: "604800"
+
+      # ── Set these manually in Render dashboard (never commit real keys) ──
+      - key: GOOGLE_AI_API_KEY
+        sync: false
+
+      - key: GROQ_API_KEY
+        sync: false
+
+      - key: ADZUNA_APP_ID
+        sync: false
+
+      - key: ADZUNA_API_KEY
+        sync: false
+
+      - key: SUPABASE_URL
+        sync: false
+
+      - key: SUPABASE_KEY
+        sync: false
+
+    # Persist FAISS index files across deploys
+    disk:
+      name: faiss-data
+      mountPath: /app/apps/documents/data
+      sizeGB: 1
+
+databases:
+  - name: skillsync-db
+    plan: free                           # free 90-day trial
+    region: singapore
